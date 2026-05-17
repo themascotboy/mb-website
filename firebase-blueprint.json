@@ -1,0 +1,37 @@
+{
+  "entities": {
+    "CMSContent": {
+      "title": "CMS Content",
+      "description": "Stores text content for the website globally.",
+      "type": "object",
+      "properties": {
+        "contentId": { "type": "string" },
+        "text": { "type": "string" }
+      },
+      "required": ["text"]
+    },
+    "ContactMessage": {
+      "title": "Contact Message",
+      "description": "A message submitted through the contact form.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "projectType": { "type": "string" },
+        "message": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["name", "email", "projectType", "message", "createdAt"]
+    }
+  },
+  "firestore": {
+    "content/{contentId}": {
+      "schema": { "$ref": "#/entities/CMSContent" },
+      "description": "Global CMS content blocks, keyed by contentId."
+    },
+    "messages/{messageId}": {
+      "schema": { "$ref": "#/entities/ContactMessage" },
+      "description": "User contact submissions"
+    }
+  }
+}

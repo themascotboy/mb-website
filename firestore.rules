@@ -1,0 +1,53 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidCMSContent(data) {
+      return data.keys().hasAll(['text']) 
+        && data.text is string 
+        && data.text.size() <= 10000;
+    }
+
+    function isValidContactMessage(data) {
+      return data.keys().hasAll(['name', 'email', 'projectType', 'message', 'createdAt'])
+        && data.keys().size() == 5
+        && data.name is string && data.name.size() > 0 && data.name.size() <= 100
+        && data.email is string && data.email.size() > 0 && data.email.size() <= 150
+        && data.projectType is string && data.projectType.size() <= 50
+        && data.message is string && data.message.size() > 0 && data.message.size() <= 5000
+        && data.createdAt == request.time;
+    }
+
+    match /content/{contentId} {
+      allow read: if true;
+      allow create: if isSignedIn() 
+                    && incoming().keys().size() <= 2
+                    && isValidCMSContent(incoming());
+      allow update: if isSignedIn() 
+                    && isValidCMSContent(incoming())
+                    && incoming().diff(existing()).affectedKeys().hasOnly(['text']);
+      allow delete: if isSignedIn();
+    }
+
+    match /messages/{messageId} {
+      allow create: if isValidContactMessage(incoming());
+      allow read, delete: if isSignedIn();
+      allow update: if false;
+    }
+  }
+}
