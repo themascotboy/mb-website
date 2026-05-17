@@ -1,11 +1,23 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Star, Zap, PenTool, Layers, Box, Quote, Trophy } from 'lucide-react';
 import { Button } from '../components/Button';
-import { PROJECTS } from '../constants';
 import { EditableText } from '../components/EditableText';
+import { collection, onSnapshot, query, orderBy, limit } from 'firebase/firestore';
+import { db, handleFirestoreError, OperationType } from '../services/firebase';
 
 export const Home: React.FC = () => {
+  const [projects, setProjects] = useState<any[]>([]);
+
+  useEffect(() => {
+    const q = query(collection(db, 'projects'), orderBy('createdAt', 'desc'), limit(2));
+    const unsub = onSnapshot(q, (snap) => {
+      setProjects(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    }, error => {
+      handleFirestoreError(error, OperationType.LIST, 'projects');
+    });
+    return () => unsub();
+  }, []);
   return (
     <div className="flex flex-col pt-24">
       {/* Hero Section */}
@@ -87,7 +99,7 @@ export const Home: React.FC = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-                {PROJECTS.slice(0, 2).map((project) => (
+                {projects.map((project) => (
                     <Link key={project.id} to="/portfolio" className="group block relative">
                          <div className="aspect-[4/3] rounded-[2.5rem] overflow-hidden bg-gray-50 shadow-subtle group-hover:shadow-elevated transition-all duration-500">
                              <img src={project.imageUrl} alt={project.title} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />

@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import React, { useState } from 'react';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../services/firebase';
 import { useCMS } from '../contexts/CMSContext';
-import { Navigate } from 'react-router-dom';
-import { Button } from '../components/Button';
+import { CMSDashboard } from './CMSDashboard';
 
 export const CMSLogin: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -12,25 +11,7 @@ export const CMSLogin: React.FC = () => {
   const { user } = useCMS();
 
   if (user) {
-    return (
-      <div className="pt-32 pb-24 px-4 min-h-[70vh] flex flex-col items-center justify-center">
-        <div className="bg-white p-12 rounded-4xl shadow-elevated text-center max-w-md w-full">
-          <h2 className="text-3xl font-display font-black uppercase mb-4">CMS Admin</h2>
-          <p className="text-gray-500 font-medium mb-8">Logged in as {user.email}</p>
-          <div className="flex flex-col gap-4">
-            <p className="text-sm bg-mascot-yellow/20 text-mascot-black font-bold p-4 rounded-xl">
-              You can now browse the site and click the edit icons that appear when hovering over text blocks to live-edit the content.
-            </p>
-            <Button 
-                variant="secondary" 
-                onClick={() => signOut(auth)}
-            >
-              Sign Out
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
+    return <CMSDashboard />;
   }
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -50,7 +31,7 @@ export const CMSLogin: React.FC = () => {
           <h1 className="text-5xl font-display font-black uppercase tracking-tighter mb-4 text-mascot-black">
             CMS <span className="text-mascot-yellow">Login</span>
           </h1>
-          <p className="text-gray-500 font-medium">Access the live editor</p>
+          <p className="text-gray-500 font-medium">Access the admin panel</p>
         </div>
 
         <form onSubmit={handleLogin} className="bg-white rounded-4xl p-8 shadow-elevated border border-gray-100 space-y-6">
@@ -86,7 +67,7 @@ export const CMSLogin: React.FC = () => {
             type="submit"
             className="w-full bg-mascot-black text-white hover:bg-mascot-yellow hover:text-mascot-black font-bold uppercase tracking-widest py-5 rounded-xl transition-all duration-300 transform hover:-translate-y-1"
           >
-            Login to CMS
+            Login to Admin Panel
           </button>
         </form>
 

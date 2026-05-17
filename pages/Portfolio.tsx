@@ -1,13 +1,30 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { PROJECTS } from '../constants';
-import { ExternalLink, X, ArrowRight, User, Tag, Calendar } from 'lucide-react';
+import { ExternalLink, X, ArrowRight, User, Tag, Calendar, Loader2 } from 'lucide-react';
 import { Project } from '../types';
+import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { db, handleFirestoreError, OperationType } from '../services/firebase';
 
 const CATEGORIES = ['All', 'Logo Design', 'Truck Wraps', 'Game Art/UI', 'Mascots'];
 
 export const Portfolio: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState('All');
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [selectedProject, setSelectedProject] = useState<any | null>(null);
+  
+  const [projects, setProjects] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch portfolio projects from Firestore
+  useEffect(() => {
+    const q = query(collection(db, 'portfolio'), orderBy('createdAt', 'desc'));
+    const unsub = onSnapshot(q, (snap) => {
+      setProjects(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      setLoading(false);
+    }, error => {
+      handleFirestoreError(error, OperationType.LIST, 'portfolio');
+      setLoading(false);
+    });
+    return () => unsub();
+  }, []);
 
   // Prevent background scroll when modal is open
   useEffect(() => {
@@ -20,9 +37,9 @@ export const Portfolio: React.FC = () => {
   }, [selectedProject]);
 
   const filteredProjects = useMemo(() => {
-    if (activeCategory === 'All') return PROJECTS;
-    return PROJECTS.filter(project => project.category === activeCategory);
-  }, [activeCategory]);
+    if (activeCategory === 'All') return projects;
+    return projects.filter(project => project.category === activeCategory);
+  }, [activeCategory, projects]);
 
   return (
     <div className="min-h-screen bg-white pt-24">

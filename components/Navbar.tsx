@@ -2,16 +2,26 @@ import React, { useState, useEffect } from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
 import { Menu, X, Zap } from 'lucide-react';
 import { NAV_ITEMS } from '../constants';
+import { doc, onSnapshot } from 'firebase/firestore';
+import { db } from '../services/firebase';
 
 export const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
+  const [siteSettings, setSiteSettings] = useState<any>(null);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, 'settings', 'global'), (snap) => {
+      if(snap.exists()) setSiteSettings(snap.data());
+    });
+    return () => unsub();
   }, []);
 
   return (
@@ -20,10 +30,14 @@ export const Navbar: React.FC = () => {
         <div className="flex justify-between items-center h-12">
           {/* Logo */}
           <Link to="/" className="flex items-center group">
-            <div className="w-8 h-8 bg-mascot-yellow rounded-lg flex items-center justify-center mr-3 group-hover:rotate-6 transition-transform">
-              <Zap className="w-4 h-4 text-mascot-black" fill="currentColor" />
-            </div>
-            <span className="font-display font-black text-xl tracking-tight uppercase">MASCOT<span className="text-mascot-yellow">BOY</span></span>
+            {siteSettings?.logoUrl ? (
+               <img src={siteSettings.logoUrl} alt={siteSettings?.siteTitle || 'Logo'} className="h-8 max-w-40 object-contain mr-3" />
+            ) : (
+              <div className="w-8 h-8 bg-mascot-yellow rounded-lg flex items-center justify-center mr-3 group-hover:rotate-6 transition-transform">
+                <Zap className="w-4 h-4 text-mascot-black" fill="currentColor" />
+              </div>
+            )}
+            <span className="font-display font-black text-xl tracking-tight uppercase">{siteSettings?.siteTitle || <>MASCOT<span className="text-mascot-yellow">BOY</span></>}</span>
           </Link>
 
           {/* Desktop Nav */}

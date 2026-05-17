@@ -22,6 +22,58 @@
         "createdAt": { "type": "string" }
       },
       "required": ["name", "email", "projectType", "message", "createdAt"]
+    },
+    "BlogPost": {
+      "title": "Blog Post",
+      "description": "A blog post.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["title", "content", "createdAt", "updatedAt"]
+    },
+    "PortfolioItem": {
+      "title": "Portfolio Item",
+      "description": "An item in the portfolio.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "link": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["title", "description", "createdAt"]
+    },
+    "ProjectItem": {
+      "title": "Project Item",
+      "description": "An item in the projects section.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "status": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["title", "description", "createdAt"]
+    },
+    "SiteSettings": {
+      "title": "Site Settings",
+      "description": "Global settings for the website.",
+      "type": "object",
+      "properties": {
+        "logoUrl": { "type": "string" },
+        "siteTitle": { "type": "string" },
+        "metaDescription": { "type": "string" },
+        "metaKeywords": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["updatedAt"]
     }
   },
   "firestore": {
@@ -32,6 +84,22 @@
     "messages/{messageId}": {
       "schema": { "$ref": "#/entities/ContactMessage" },
       "description": "User contact submissions"
+    },
+    "posts/{postId}": {
+      "schema": { "$ref": "#/entities/BlogPost" },
+      "description": "Blog posts"
+    },
+    "portfolio/{portfolioId}": {
+      "schema": { "$ref": "#/entities/PortfolioItem" },
+      "description": "Portfolio items"
+    },
+    "projects/{projectId}": {
+      "schema": { "$ref": "#/entities/ProjectItem" },
+      "description": "Project items"
+    },
+    "settings/{settingId}": {
+      "schema": { "$ref": "#/entities/SiteSettings" },
+      "description": "Site global settings"
     }
   }
 }

@@ -10,14 +10,15 @@ import { Blog } from './pages/Blog';
 import { Contact } from './pages/Contact';
 import { CMSLogin } from './pages/CMSLogin';
 import { CMSProvider } from './contexts/CMSContext';
+import { SEO } from './components/SEO';
 
 const ScrollToTop = () => {
     const { pathname } = useLocation();
-  
+
     React.useEffect(() => {
       window.scrollTo(0, 0);
     }, [pathname]);
-  
+
     return null;
   };
 
@@ -25,6 +26,7 @@ const App: React.FC = () => {
   return (
     <CMSProvider>
       <HashRouter>
+          <SEO />
           <ScrollToTop />
           <div className="min-h-screen flex flex-col bg-white relative">
               <BackgroundDoodles />

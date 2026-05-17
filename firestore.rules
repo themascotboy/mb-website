@@ -33,6 +33,45 @@ service cloud.firestore {
         && data.createdAt == request.time;
     }
 
+    function isValidBlogPost(data) {
+      return data.keys().hasAll(['title', 'content', 'createdAt', 'updatedAt'])
+        && data.title is string && data.title.size() > 0 && data.title.size() <= 200
+        && data.content is string && data.content.size() <= 1000000
+        && ( !('imageUrl' in data) || (data.imageUrl is string && data.imageUrl.size() <= 2048) )
+        && data.createdAt is timestamp
+        && data.updatedAt == request.time;
+    }
+
+    function isValidPortfolioItem(data) {
+      return data.keys().hasAll(['title', 'description', 'createdAt'])
+        && data.title is string && data.title.size() > 0 && data.title.size() <= 200
+        && data.description is string && data.description.size() <= 100000
+        && ( !('imageUrl' in data) || (data.imageUrl is string && data.imageUrl.size() <= 2048) )
+        && ( !('link' in data) || (data.link is string && data.link.size() <= 2048) )
+        && ( !('category' in data) || (data.category is string && data.category.size() <= 100) )
+        && data.createdAt is timestamp;
+    }
+
+    function isValidProjectItem(data) {
+      return data.keys().hasAll(['title', 'description', 'createdAt'])
+        && data.title is string && data.title.size() > 0 && data.title.size() <= 200
+        && data.description is string && data.description.size() <= 100000
+        && ( !('imageUrl' in data) || (data.imageUrl is string && data.imageUrl.size() <= 2048) )
+        && ( !('status' in data) || (data.status is string && data.status.size() <= 50) )
+        && ( !('category' in data) || (data.category is string && data.category.size() <= 100) )
+        && ( !('client' in data) || (data.client is string && data.client.size() <= 100) )
+        && data.createdAt is timestamp;
+    }
+
+    function isValidSiteSettings(data) {
+      return data.keys().hasAll(['updatedAt'])
+        && ( !('logoUrl' in data) || (data.logoUrl is string && data.logoUrl.size() <= 2048) )
+        && ( !('siteTitle' in data) || (data.siteTitle is string && data.siteTitle.size() <= 200) )
+        && ( !('metaDescription' in data) || (data.metaDescription is string && data.metaDescription.size() <= 2000) )
+        && ( !('metaKeywords' in data) || (data.metaKeywords is string && data.metaKeywords.size() <= 500) )
+        && data.updatedAt == request.time;
+    }
+
     match /content/{contentId} {
       allow read: if true;
       allow create: if isSignedIn() 
@@ -48,6 +87,34 @@ service cloud.firestore {
       allow create: if isValidContactMessage(incoming());
       allow read, delete: if isSignedIn();
       allow update: if false;
+    }
+
+    match /posts/{postId} {
+      allow read: if true;
+      allow create: if isSignedIn() && isValidBlogPost(incoming()) && incoming().createdAt == request.time;
+      allow update: if isSignedIn() && isValidBlogPost(incoming()) && incoming().createdAt == existing().createdAt;
+      allow delete: if isSignedIn();
+    }
+
+    match /portfolio/{portfolioId} {
+      allow read: if true;
+      allow create: if isSignedIn() && isValidPortfolioItem(incoming()) && incoming().createdAt == request.time;
+      allow update: if isSignedIn() && isValidPortfolioItem(incoming()) && incoming().createdAt == existing().createdAt;
+      allow delete: if isSignedIn();
+    }
+
+    match /projects/{projectId} {
+      allow read: if true;
+      allow create: if isSignedIn() && isValidProjectItem(incoming()) && incoming().createdAt == request.time;
+      allow update: if isSignedIn() && isValidProjectItem(incoming()) && incoming().createdAt == existing().createdAt;
+      allow delete: if isSignedIn();
+    }
+
+    match /settings/{settingId} {
+      allow read: if true;
+      allow create: if isSignedIn() && isValidSiteSettings(incoming());
+      allow update: if isSignedIn() && isValidSiteSettings(incoming());
+      allow delete: if isSignedIn();
     }
   }
 }
